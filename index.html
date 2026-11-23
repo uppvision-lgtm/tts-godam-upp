@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="data:," />
-    <title>TTS Godam UPP v9</title>
+    <title>TTS Godam UPP v10</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -171,7 +171,7 @@
     </style>
   </head>
   <body>
-    <!-- TTS Godam UPP v9 — 23 Nov 2026 — Tanpa kuota: widget membaca live.json + chat.json yang diisi pengawas Muse (raw.githubusercontent.com). Tidak ada API key, tidak ada panggilan ke YouTube Data API. v8 (API resmi) adalah cadangan kalau pengawas mati. -->
+    <!-- TTS Godam UPP v10 — 23 Nov 2026 — Tanpa kuota: widget membaca live.json + chat.json yang diisi pengawas Muse (raw.githubusercontent.com). Tidak ada API key, tidak ada panggilan ke YouTube Data API. v8 (API resmi) adalah cadangan kalau pengawas mati. -->
     <!-- ======= MODE OBS (otomatis di OBS Browser Source, atau manual lewat ?obs=1 / #obs=1) ======= -->
     <div class="obs-bar" aria-label="Status TTS mode OBS">
       <div class="row">
@@ -192,7 +192,7 @@
         <div>
           <h1>TTS Live Chat — Godam UPP</h1>
           <p>Widget text-to-speech untuk live chat YouTube <b>@godamupp</b>. Sasarannya otomatis: live yang <b>sedang berjalan</b> saat itu — kalau lagi nggak live, ya tidak ada yang dibacakan. Komen dibacakan mengikuti profil suara <b>Majestic Throne</b>, suara dubbing Shorts Godam UPP. Jalan sebagai OBS Browser Source, tanpa install aplikasi apa pun.</p>
-          <p class="hint" style="margin:6px 0 0">Versi 9 (23 Nov 2026) — tanpa kuota, data diisi pengawas Muse.</p>
+          <p class="hint" style="margin:6px 0 0">Versi 10 (23 Nov 2026) — baca dari pesan terbaru, tanpa sebut nama, suara lebih halus.</p>
         </div>
         <div class="pill"><span class="dot" id="mainDot"></span><span id="mainStatus">Belum jalan</span></div>
       </header>
@@ -262,7 +262,6 @@
             <h2 id="h-filter"><span class="num">4</span> Filter Pesan</h2>
             <p class="sub">Pesan yang lolos filter masuk antrean baca (FIFO, maksimal 20 — kalau penuh, yang paling lama dilewati). Pesan dipotong maksimal 200 karakter.</p>
             <div class="checks">
-              <label><input type="checkbox" id="optReadName" checked /><span><span class="t">Baca nama pengirim</span><span class="d">Contoh: “Budi bilang: bang, mancing di mana?”</span></span></label>
               <label><input type="checkbox" id="optSkipCommand" checked /><span><span class="t">Lewati perintah</span><span class="d">Pesan yang diawali <span class="mono">!</span> atau <span class="mono">/</span> tidak dibaca (misal !halo dari Nightbot).</span></span></label>
               <label><input type="checkbox" id="optSkipEmoji" checked /><span><span class="t">Lewati pesan hanya emoji</span><span class="d">Pesan yang isinya cuma emoji / simbol tanpa kata tidak dibaca.</span></span></label>
               <label><input type="checkbox" id="optSkipLink" checked /><span><span class="t">Lewati pesan berisi link</span><span class="d">Pesan yang mengandung URL / nama domain tidak dibaca.</span></span></label>
@@ -325,11 +324,11 @@
         <h2 id="h-panduan">Panduan</h2>
 
         <div class="honest" style="margin-bottom:16px">
-          <b>Jujur dulu:</b> widget ini <b>belum teruji di live sungguhan</b>. Tes pertama wajib dilakukan saat live beneran, karena chat live, data pengawas, dan suara di dalam OBS baru ketahuan persisnya di sana. Ikuti langkah tes di bawah — jangan langsung percaya sebelum dengar sendiri suaranya keluar. <b>Catatan v9:</b> widget ini membaca data yang diisi pengawas Muse — kalau pengawas mati atau YouTube mengubah sistem web-nya, widget tidak bisa membaca chat sampai pengawas jalan lagi. Pesan bisa telat ~10–20 detik dari waktu dikirim (pengawas membaca chat tiap ~10 detik, widget membaca file chat tiap 5 detik).
+          <b>Jujur dulu:</b> widget ini <b>sudah teruji di live sungguhan 23 Nov 2026</b> (live @godamupp terdeteksi, chat masuk dan terbaca). <b>Catatan v10:</b> widget ini membaca data yang diisi pengawas Muse — kalau pengawas mati atau YouTube mengubah sistem web-nya, widget tidak bisa membaca chat sampai pengawas jalan lagi. Pesan bisa telat ~10–20 detik dari waktu dikirim (pengawas membaca chat tiap ~10 detik, widget membaca file chat tiap 5 detik).
         </div>
 
         <h3>A. NOL kuota — cara kerjanya (tanpa API key)</h3>
-        <p>Widget v9 <b>tidak memakai YouTube Data API sama sekali, jadi tidak ada kuota yang terpakai dan tidak ada API key yang dibutuhkan</b> — key lama yang mungkin masih menempel di URL Browser Source diabaikan. Cara kerjanya: pengawas yang jalan di mesin Muse mengecek live @godamupp dan membaca chat-nya lewat sistem web YouTube, lalu menulis hasilnya ke dua file di repo GitHub <span class="mono">tts-godam-upp</span> — <span class="mono">live.json</span> (lagi live atau tidak, tiap ~60 detik) dan <span class="mono">chat.json</span> (50 pesan terakhir, tiap ~10 detik saat live). Widget ini hanya membaca kedua file itu dari <span class="mono">raw.githubusercontent.com</span> — <span class="mono">live.json</span> tiap 30 detik, <span class="mono">chat.json</span> tiap 5 detik saat live. Kalau pengawas mati, baris Pengawas memberi peringatan dan widget menunggu sampai data baru masuk. Cadangan kalau pengawas mati lama: widget v8 (pakai API key + YouTube Data API resmi) masih ada sebagai cadangan.</p>
+        <p>Widget v10 <b>tidak memakai YouTube Data API sama sekali, jadi tidak ada kuota yang terpakai dan tidak ada API key yang dibutuhkan</b> — key lama yang mungkin masih menempel di URL Browser Source diabaikan. Cara kerjanya: pengawas yang jalan di mesin Muse mengecek live @godamupp dan membaca chat-nya lewat sistem web YouTube, lalu menulis hasilnya ke dua file di repo GitHub <span class="mono">tts-godam-upp</span> — <span class="mono">live.json</span> (lagi live atau tidak, tiap ~60 detik) dan <span class="mono">chat.json</span> (50 pesan terakhir, tiap ~10 detik saat live). Widget ini hanya membaca kedua file itu dari <span class="mono">raw.githubusercontent.com</span> — <span class="mono">live.json</span> tiap 30 detik, <span class="mono">chat.json</span> tiap 5 detik saat live. Kalau pengawas mati, baris Pengawas memberi peringatan dan widget menunggu sampai data baru masuk. Cadangan kalau pengawas mati lama: widget v8 (pakai API key + YouTube Data API resmi) masih ada sebagai cadangan.</p>
 
         <h3>B. Langkah tes (wajib urut)</h3>
         <ol>
@@ -345,7 +344,7 @@
           <li>Di properti Browser Source, centang <b>Control audio via OBS</b>.</li>
           <li>Di <b>Advanced Audio Properties</b> (klik kanan sumber audio widget), set ke <b>Monitor and Output</b> — persis seperti Saweria dulu — supaya kamu dengar di headset dan penonton juga dengar.</li>
           <li>Klik kanan Browser Source → <b>Interact</b> kalau mau melihat status/pengawas dari dalam OBS — tidak ada yang perlu diisi; sistem jalan sendiri.</li>
-          <li><b>URL lama yang masih berisi <code>?obs=1&amp;key=…</code>:</b> parameter <code>key</code>-nya diabaikan di v9 — boleh dibiarkan, boleh dihapus. Widget v9 tidak memakai API key sama sekali.</li>
+          <li><b>URL lama yang masih berisi <code>?obs=1&amp;key=…</code>:</b> parameter <code>key</code>-nya diabaikan di v10 — boleh dibiarkan, boleh dihapus. Widget v9 tidak memakai API key sama sekali.</li>
         </ol>
 
         <h3>D. Catatan suara</h3>
@@ -365,7 +364,7 @@
       var LS_SETTINGS = "ttsgodam.settings.v2";
       var MAX_QUEUE = 20;
       var MAX_CHARS = 200;
-      // v9: NOL kuota — widget TIDAK memanggil YouTube Data API sama sekali.
+      // v10: NOL kuota — widget TIDAK memanggil YouTube Data API sama sekali.
       // Data live + chat diisi pengawas Muse ke repo GitHub, widget hanya
       // membaca dua file JSON di bawah (raw.githubusercontent mengirim
       // Access-Control-Allow-Origin: *, jadi fetch lintas origin diizinkan).
@@ -373,6 +372,8 @@
       var WATCHER_BASE = "https://raw.githubusercontent.com/uppvision-lgtm/tts-godam-upp/main/";
       var LIVE_CHECK_MS = 30000;   // baca live.json tiap 30 detik
       var CHAT_POLL_MS = 5000;     // baca chat.json tiap 5 detik saat live
+      var MAX_MSG_AGE_MS = 90000;  // pesan lebih tua dari ini dilewati (v10)
+      var SPEAK_GAP_MS = 350;      // jeda antar pesan supaya suara tidak patah-patah (v10)
       var WATCHER_STALE_MS = 180000; // data pengawas >3 menit = peringatan
 
       var $ = function(id){ return document.getElementById(id); };
@@ -431,10 +432,11 @@
 
       var settings = {
         voiceURI: "",
-        rate: 1.3, pitch: 0.9, volume: 1,
-        readName: true, skipCommand: true, skipEmoji: true,
+        rate: 1.05, pitch: 0.9, volume: 1,
+        skipCommand: true, skipEmoji: true,
         skipLink: true, skipOwn: true, blacklist: "",
-        systemOn: true
+        systemOn: true,
+        _rateMigrated: false
       };
 
       /* ---------------- Settings persistence ---------------- */
@@ -653,7 +655,8 @@
       function buildSpoken(name, text){
         var t = (text || "").trim();
         if (t.length > MAX_CHARS) t = t.slice(0, MAX_CHARS).trim() + "…";
-        if (settings.readName && name) return name + " bilang: " + t;
+        // v10 (Rey): jangan sebut nama channel yang komen — langsung baca
+        // isi pesannya saja. Nama pengirim tetap tampil di log, bukan suara.
         return t;
       }
 
@@ -685,22 +688,25 @@
           state.speaking = false; state.currentItem = null;
           state.readCount++;
           renderStats(); renderSpeaking();
-          speakNext();
+          // Jeda singkat antar pesan supaya suara tidak patah-patah (v10).
+          setTimeout(function(){ if (state.running) speakNext(); }, SPEAK_GAP_MS);
         };
         u.onerror = function(ev){
           state.speaking = false; state.currentItem = null;
           renderSpeaking();
           if (ev.error !== "canceled" && ev.error !== "interrupted")
             addLog("err", "ERROR SUARA", "Gagal membacakan pesan (" + ev.error + ").");
-          speakNext();
+          setTimeout(function(){ if (state.running) speakNext(); }, SPEAK_GAP_MS);
         };
         try { speechSynthesis.speak(u); }
         catch(e){ state.speaking = false; state.currentItem = null; renderSpeaking(); }
       }
-      // Chrome kadang menahan utterance panjang; resume berkala selagi bicara.
+      // Chrome kadang menahan utterance panjang (pause) — resume HANYA kalau
+      // memang sedang pause. Resume berkala tanpa cek bikin suara
+      // patah-patah di beberapa Chrome/CEF (OBS) (v10).
       setInterval(function(){
         if (state.speaking && "speechSynthesis" in window) {
-          try { speechSynthesis.resume(); } catch(e){}
+          try { if (speechSynthesis.paused) speechSynthesis.resume(); } catch(e){}
         }
       }, 8000);
 
@@ -719,7 +725,7 @@
         enqueue(item);
       }
 
-      /* ---------------- Pengawas Muse (v9, tanpa kuota) ----------------
+      /* ---------------- Pengawas Muse (v10, tanpa kuota) ----------------
          Widget TIDAK memanggil YouTube Data API sama sekali. Semua data
          live + chat dibaca dari dua file JSON yang ditulis pengawas Muse
          ke repo GitHub tts-godam-upp:
@@ -729,6 +735,8 @@
            chat.json: {"videoId":string, "updatedAt":ISO-8601 UTC,
                        "messages":[{"id","author","text","ts"}...]}
          (maks 50 pesan terakhir, tertua dulu; reset [] kalau videoId berubah)
+         v10: pesan yang lebih tua dari 90 detik dilewati — sistem yang
+         dinyalakan di tengah live mulai dari pesan terbaru saja.
          Fetch pakai cache-buster ?t= karena raw.githubusercontent cache
          5 menit tanpa itu. */
       function fetchWatcherJSON(file){
@@ -827,16 +835,23 @@
           // (pengawas sedang ganti live — live.json berikutnya yang mengatur).
           if (data.videoId && data.videoId !== state.videoId) return;
           var msgs = data.messages || [];
-          var fresh = 0;
+          var fresh = 0, oldSkipped = 0;
           msgs.forEach(function(m){
             if (!m || !m.id || seenIds[m.id]) return;
             seenIds[m.id] = true;
+            // Pesan lama dilewati (v10): sistem yang dinyalakan di tengah
+            // live harus mulai dari pesan terbaru saja, bukan membaca dari
+            // awal. ts di chat.json memakai microdetik.
+            if (m.ts && (Date.now()*1000 - m.ts) > MAX_MSG_AGE_MS*1000) {
+              oldSkipped++;
+              state.skipCount++;
+              return;
+            }
             fresh++;
-            // chat.json tidak membawa ID channel pengirim, jadi filter
-            // "lewati pesan sendiri" tidak bisa diterapkan di v9.
             processIncoming(m.author || "Tanpa nama", m.text || "", m.authorChannelId || "");
           });
-          if (fresh) renderStats();
+          if (oldSkipped) addLog("skip", "DILEWATI", oldSkipped + " pesan lama dilewati — mulai dari pesan terbaru saja.");
+          if (fresh || oldSkipped) renderStats();
         }).catch(function(err){
           state.chatFetching = false;
           state.chatFailStreak++;
@@ -1032,10 +1047,17 @@
 
       /* ---------------- Init ---------------- */
       loadSettings();
+      // Migrasi v10: kecepatan bawaan lama 1.3x bikin suara terdengar
+      // patah-patah. Kalau pengguna tidak pernah mengubah slider kecepatan
+      // (nilai tersimpan masih 1.3), turunkan ke 1.05. Sekali saja.
+      if (!settings._rateMigrated) {
+        if (settings.rate === 1.3) settings.rate = 1.05;
+        settings._rateMigrated = true;
+        saveSettings();
+      }
       bindSlider("rate", "rateOut", "rate", function(v){ return v.toFixed(2) + "×"; });
       bindSlider("pitch", "pitchOut", "pitch", function(v){ return v.toFixed(2); });
       bindSlider("volume", "volumeOut", "volume", function(v){ return Math.round(v*100) + "%"; });
-      bindCheck("optReadName", "readName");
       bindCheck("optSkipCommand", "skipCommand");
       bindCheck("optSkipEmoji", "skipEmoji");
       bindCheck("optSkipLink", "skipLink");
@@ -1048,8 +1070,8 @@
       renderStats(); renderQueue(); renderControls();
       if (isOBS) setStatus("", obsDetectedAuto && cfgGet("obs") !== "1" ? "Mode OBS (terdeteksi otomatis)" : "Mode OBS");
       addLog("info", "INFO", isOBS
-        ? "Widget v9 dibuka dalam mode OBS" + (obsDetectedAuto && cfgGet("obs") !== "1" ? " — terdeteksi otomatis dari OBS Browser Source, tanpa ?obs=1." : " (?obs=1 / #obs=1).") + " Suara dicoba aktif otomatis; sistem jalan sendiri, tidak ada tombol yang perlu diklik kecuali Matikan Sistem."
-        : "Widget v9 siap — tanpa API key, data live + chat diisi pengawas Muse. Suara dicoba aktif otomatis; sistem langsung membaca data pengawas.");
+        ? "Widget v10 dibuka dalam mode OBS" + (obsDetectedAuto && cfgGet("obs") !== "1" ? " — terdeteksi otomatis dari OBS Browser Source, tanpa ?obs=1." : " (?obs=1 / #obs=1).") + " Suara dicoba aktif otomatis; sistem jalan sendiri, tidak ada tombol yang perlu diklik kecuali Matikan Sistem."
+        : "Widget v10 siap — tanpa API key, data live + chat diisi pengawas Muse. Suara dicoba aktif otomatis; sistem langsung membaca data pengawas.");
       // Deteksi OBS susulan: window.obsstudio kadang baru disuntikkan sesaat
       // setelah halaman dimuat — cek ulang sebentar, perilakunya sama seperti ?obs=1.
       if (!isOBS) {
@@ -1072,7 +1094,7 @@
       ["pointerdown", "keydown", "touchstart"].forEach(function(evName){
         document.addEventListener(evName, function(){ if (!state.audioUnlocked) tryAutoUnlock(); }, { passive: true });
       });
-      // Boot v9: kalau sistem nyala (bawaan), langsung resume penuh tanpa
+      // Boot v10: kalau sistem nyala (bawaan), langsung resume penuh tanpa
       // klik apa pun — suara dicoba aktif, pengawas mulai, data live dibaca
       // segera. Kalau sistem mati, tidak ada yang dimulai.
       renderControls();

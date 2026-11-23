@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="data:," />
-    <title>TTS Godam UPP v7</title>
+    <title>TTS Godam UPP v9</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -168,15 +168,10 @@
       .obs-bar .speak{ color:var(--muted); font-size:13.5px; overflow-wrap:anywhere; }
       .obs-bar .speak b{ color:var(--text); }
       body.obs button{ min-height:40px; }
-      .obs-key{ border-top:1px solid var(--line); padding-top:10px; }
-      .obs-key .key-row{ display:flex; gap:8px; flex-wrap:wrap; }
-      .obs-key .key-row input{ flex:1 1 180px; min-height:40px; }
-      .obs-key .key-row button{ flex:0 0 auto; min-height:40px; padding:6px 12px; font-size:13.5px; }
-      .obs-key .hint{ margin:6px 0 0; }
     </style>
   </head>
   <body>
-    <!-- TTS Godam UPP v7 — 23 Nov 2026 — Full otomasi: satu tombol Matikan Sistem; resume otomatis setelah refresh; status pengawas terlihat -->
+    <!-- TTS Godam UPP v9 — 23 Nov 2026 — Tanpa kuota: widget membaca live.json + chat.json yang diisi pengawas Muse (raw.githubusercontent.com). Tidak ada API key, tidak ada panggilan ke YouTube Data API. v8 (API resmi) adalah cadangan kalau pengawas mati. -->
     <!-- ======= MODE OBS (otomatis di OBS Browser Source, atau manual lewat ?obs=1 / #obs=1) ======= -->
     <div class="obs-bar" aria-label="Status TTS mode OBS">
       <div class="row">
@@ -186,17 +181,10 @@
       </div>
       <div class="speak" id="obsSpeak">Belum ada pesan yang dibaca.</div>
       <div class="hint" id="obsWatchState" style="margin:0">Pengawas: MATI.</div>
-      <div class="obs-key">
-        <label class="flabel" for="obsApiKey">API Key YouTube <span>— disimpan hanya di browser OBS ini (localStorage), hanya dikirim ke googleapis.com</span></label>
-        <div class="key-row">
-          <input type="password" id="obsApiKey" placeholder="Tempel API key di sini (contoh: AIza…)" autocomplete="off" spellcheck="false" />
-        </div>
-        <p class="hint" id="obsKeyState">Belum ada API key tersimpan.</p>
-      </div>
       <div class="row">
         <button type="button" class="primary" id="btnSystemObs">Matikan Sistem</button>
       </div>
-      <div class="hint" style="margin:0">Mode OBS ini aktif otomatis di OBS Browser Source (tanpa perlu <code>?obs=1</code>). Suara juga dicoba aktif otomatis. Sistem jalan sendiri: pengawas mengecek live @godamupp tiap 60 detik dan langsung membaca chat begitu live muncul — tidak ada tombol yang perlu diklik, kecuali Matikan Sistem di atas kalau mau mematikan seluruh sistem. Pengaturan suara &amp; filter ada di tampilan biasa (website), bukan di sini. Penyimpanan browser di OBS terpisah dari Chrome, jadi API key perlu diisi sekali di dalam OBS (tempel di kolom di atas — tersimpan otomatis saat mengetik). Kalau paste tidak jalan di Interact, tempel key langsung di URL Browser Source: tambahkan <code>&amp;key=KEY_KAMU</code> di akhir URL (jadi <code>?obs=1&amp;key=…</code>), atau pakai hash <code>#obs=1&amp;key=…</code> kalau query string tidak diteruskan — widget akan menyimpannya otomatis.</div>
+      <div class="hint" style="margin:0">Mode OBS ini aktif otomatis di OBS Browser Source (tanpa perlu <code>?obs=1</code>). Suara juga dicoba aktif otomatis. Sistem jalan sendiri: pengawas Muse mengisi data live @godamupp dan widget membacanya tiap 30 detik, lalu membaca chat begitu live muncul — tidak ada tombol yang perlu diklik, kecuali Matikan Sistem di atas kalau mau mematikan seluruh sistem. Tidak perlu API key apa pun — kalau URL Browser Source lama masih berisi <code>&amp;key=…</code>, parameter itu diabaikan. Pengaturan suara &amp; filter ada di tampilan biasa (website), bukan di sini.</div>
     </div>
 
     <main class="wrap">
@@ -204,7 +192,7 @@
         <div>
           <h1>TTS Live Chat — Godam UPP</h1>
           <p>Widget text-to-speech untuk live chat YouTube <b>@godamupp</b>. Sasarannya otomatis: live yang <b>sedang berjalan</b> saat itu — kalau lagi nggak live, ya tidak ada yang dibacakan. Komen dibacakan mengikuti profil suara <b>Majestic Throne</b>, suara dubbing Shorts Godam UPP. Jalan sebagai OBS Browser Source, tanpa install aplikasi apa pun.</p>
-          <p class="hint" style="margin:6px 0 0">Versi 7 (23 Nov 2026) — full otomasi: satu tombol Matikan Sistem, resume otomatis setelah refresh, status pengawas terlihat.</p>
+          <p class="hint" style="margin:6px 0 0">Versi 9 (23 Nov 2026) — tanpa kuota, data diisi pengawas Muse.</p>
         </div>
         <div class="pill"><span class="dot" id="mainDot"></span><span id="mainStatus">Belum jalan</span></div>
       </header>
@@ -212,7 +200,7 @@
       <!-- ======= 1. KONTROL ======= -->
       <section class="panel" aria-labelledby="h-kontrol">
         <h2 id="h-kontrol"><span class="num">1</span> Kontrol</h2>
-        <p class="sub">Widget ini <b>jalan sendiri sepenuhnya</b>: begitu halaman dimuat, sistem langsung mencoba mengaktifkan suara dan pengawas mulai mengecek live @godamupp tiap 60 detik — begitu live muncul, chat langsung dibacakan tanpa klik apa pun. Satu-satunya tombol di widget ini adalah <b>Matikan Sistem</b> di bawah: mematikannya menghentikan semua pengawasan, polling, dan bacaan. Nyalakan lagi kapan saja dengan tombol yang sama.</p>
+        <p class="sub">Widget ini <b>jalan sendiri sepenuhnya</b>: begitu halaman dimuat, sistem langsung mencoba mengaktifkan suara dan mulai membaca data live @godamupp yang diisi pengawas Muse tiap 30 detik — begitu live muncul, chat langsung dibacakan tanpa klik apa pun. Satu-satunya tombol di widget ini adalah <b>Matikan Sistem</b> di bawah: mematikannya menghentikan semua pembacaan data, polling, dan bacaan. Nyalakan lagi kapan saja dengan tombol yang sama.</p>
         <div class="btnrow">
           <button type="button" class="primary" id="btnSystem">Matikan Sistem</button>
         </div>
@@ -223,15 +211,7 @@
       <!-- ======= 2. SAMBUNGKAN KE LIVE ======= -->
       <section class="panel" aria-labelledby="h-sambung">
         <h2 id="h-sambung"><span class="num">2</span> Sambungkan ke Live</h2>
-        <p class="sub">Widget mengambil chat langsung dari YouTube Data API v3 resmi, dari browser ini, tanpa server perantara. Live yang dituju selalu live yang sedang berjalan di @godamupp — tidak ada pilihan video manual.</p>
-
-        <div class="field">
-          <label class="flabel" for="apiKey">API Key YouTube <span>— disimpan hanya di browser ini (localStorage), hanya dikirim ke googleapis.com</span></label>
-          <div class="inline">
-            <input type="password" id="apiKey" placeholder="Tempel API key di sini (contoh: AIza…)" autocomplete="off" spellcheck="false" />
-          </div>
-          <p class="hint" id="keyState">Belum ada API key tersimpan.</p>
-        </div>
+        <p class="sub"><b>NOL kuota — widget ini tidak memakai YouTube Data API sama sekali; data live + chat diisi pengawas Muse, API key tidak dibutuhkan.</b> Pengawas mengecek live @godamupp dan menulis hasilnya ke file <span class="mono">live.json</span> + <span class="mono">chat.json</span>; widget hanya membaca kedua file itu. Live yang dituju selalu live yang sedang berjalan di @godamupp — tidak ada pilihan video manual, dan tidak ada yang perlu diisi.</p>
 
         <div class="field" style="margin-bottom:0">
           <label class="flabel">Live yang dituju — otomatis</label>
@@ -240,7 +220,7 @@
             <div class="lt-title" id="ltTitle">Widget menyasar live yang <b>sedang berjalan</b> di @godamupp. Kalau sekarang lagi nggak live, ya belum ada live yang bisa dituju — begitu kamu live, pengawas langsung menyasar live itu sendiri.</div>
             <div class="mono lt-id" id="ltId"></div>
           </div>
-          <p class="hint">Pengecekan memakai pencarian resmi YouTube di channel Godam UPP (<span class="mono">UCS7xX24VmKTa55YcRnvDxEQ</span>), biaya 100 unit kuota sekali cek. Sistem mengecek otomatis tiap 60 detik selama sistem nyala, dan begitu live ketemu langsung menyambung ke chat-nya — tidak ada langkah pilih-pilih video.</p>
+          <p class="hint">Widget membaca <span class="mono">live.json</span> tiap 30 detik selama sistem nyala; kalau live sedang berjalan, widget membaca <span class="mono">chat.json</span> tiap 5 detik dan membacakan pesan barunya — tidak ada langkah pilih-pilih video. Kalau data pengawas lebih tua dari 3 menit, baris Pengawas memberi peringatan (pengawas mungkin mati) — saat itu tidak ada yang bisa dibaca sampai pengawas jalan lagi.</p>
         </div>
       </section>
 
@@ -301,20 +281,20 @@
           <!-- ======= 6. STATUS ======= -->
           <section class="panel" aria-labelledby="h-status">
             <h2 id="h-status"><span class="num">5</span> Status Live</h2>
-            <p class="sub">Polling mengikuti <span class="mono">pollingIntervalMillis</span> dari YouTube, minimal 5 detik. Satu panggilan ambil chat = 5 unit kuota.</p>
+            <p class="sub">Data live + chat diisi pengawas Muse (tanpa kuota). Widget membaca <span class="mono">live.json</span> tiap 30 detik dan <span class="mono">chat.json</span> tiap 5 detik saat live.</p>
             <div class="now-speaking" id="nowSpeaking">
               <div class="k">Sedang dibaca</div>
               <div class="v" id="nowSpeakingText">—</div>
             </div>
             <div class="stats">
               <div class="stat"><div class="k">Video live yang dituju</div><div class="v mono" id="stVideo">—</div></div>
-              <div class="stat"><div class="k">Live Chat ID</div><div class="v mono" id="stChat">—</div></div>
+              <div class="stat"><div class="k">Data pengawas terakhir</div><div class="v mono" id="stWatch">—</div></div>
               <div class="stat"><div class="k">Pesan dibaca</div><div class="v big" id="stRead">0</div></div>
               <div class="stat"><div class="k">Di antrean</div><div class="v big" id="stQueue">0</div></div>
               <div class="stat"><div class="k">Pesan masuk (lolos filter)</div><div class="v" id="stIn">0</div></div>
               <div class="stat"><div class="k">Pesan dilewati filter</div><div class="v" id="stSkip">0</div></div>
-              <div class="stat"><div class="k">Perkiraan kuota sesi ini</div><div class="v" id="stQuota">0 unit</div></div>
-              <div class="stat"><div class="k">Interval polling</div><div class="v" id="stPoll">—</div></div>
+              <div class="stat"><div class="k">Kuota YouTube dipakai</div><div class="v" id="stQuota">NOL — tanpa kuota</div></div>
+              <div class="stat"><div class="k">Interval baca chat</div><div class="v" id="stPoll">—</div></div>
             </div>
             <div class="field" style="margin-top:14px">
               <label class="flabel">Pesan terakhir masuk</label>
@@ -345,25 +325,18 @@
         <h2 id="h-panduan">Panduan</h2>
 
         <div class="honest" style="margin-bottom:16px">
-          <b>Jujur dulu:</b> widget ini <b>belum teruji di live sungguhan</b>. Tes pertama wajib dilakukan saat live beneran, karena chat live, kuota API, dan suara di dalam OBS baru ketahuan persisnya di sana. Ikuti langkah tes di bawah — jangan langsung percaya sebelum dengar sendiri suaranya keluar.
+          <b>Jujur dulu:</b> widget ini <b>belum teruji di live sungguhan</b>. Tes pertama wajib dilakukan saat live beneran, karena chat live, data pengawas, dan suara di dalam OBS baru ketahuan persisnya di sana. Ikuti langkah tes di bawah — jangan langsung percaya sebelum dengar sendiri suaranya keluar. <b>Catatan v9:</b> widget ini membaca data yang diisi pengawas Muse — kalau pengawas mati atau YouTube mengubah sistem web-nya, widget tidak bisa membaca chat sampai pengawas jalan lagi. Pesan bisa telat ~10–20 detik dari waktu dikirim (pengawas membaca chat tiap ~10 detik, widget membaca file chat tiap 5 detik).
         </div>
 
-        <h3>A. Cara buat API Key YouTube (gratis)</h3>
-        <ol>
-          <li>Buka <b>Google Cloud Console</b> (console.cloud.google.com) pakai akun Google mana saja, lalu buat project baru (nama bebas, misal “TTS Godam”).</li>
-          <li>Masuk ke <b>APIs &amp; Services → Library</b>, cari <b>YouTube Data API v3</b>, klik <b>Enable</b>.</li>
-          <li>Masuk ke <b>APIs &amp; Services → Credentials → Create Credentials → API key</b>. Salin key-nya (diawali <span class="mono">AIza…</span>).</li>
-          <li>(Disarankan) Klik key-nya → <b>Restrict key</b> → batasi hanya untuk <b>YouTube Data API v3</b>, supaya key tidak bisa dipakai untuk layanan lain.</li>
-          <li>Tempel key di kolom API Key di atas — key tersimpan otomatis saat mengetik, tanpa tombol simpan. Key hanya disimpan di browser ini dan hanya dikirim ke googleapis.com.</li>
-        </ol>
-        <p>Kuota gratisnya <b>10.000 unit per hari</b>. Perkiraan pemakaian widget ini: cek live 100 unit sekali cek (pengawas mengecek otomatis tiap 60 detik selama sistem nyala), ambil info video 1 unit, ambil chat 5 unit per polling. Polling tiap ±5 detik ≈ 60 unit/menit ≈ 3.600 unit/jam — cukup untuk live beberapa jam, dan angka perkiraan sesi ini selalu tampil di panel Status. <b>Catatan pengawas:</b> selama sistem nyala dan menunggu live muncul, pengecekan tiap 60 detik itu 100 unit sekali cek (±6.000 unit/jam) — jadi jangan biarkan sistem nyala berjam-jam sebelum live dimulai; nyalakan sistem mendekati jam live, atau matikan sistem kalau mau hemat kuota.</p>
+        <h3>A. NOL kuota — cara kerjanya (tanpa API key)</h3>
+        <p>Widget v9 <b>tidak memakai YouTube Data API sama sekali, jadi tidak ada kuota yang terpakai dan tidak ada API key yang dibutuhkan</b> — key lama yang mungkin masih menempel di URL Browser Source diabaikan. Cara kerjanya: pengawas yang jalan di mesin Muse mengecek live @godamupp dan membaca chat-nya lewat sistem web YouTube, lalu menulis hasilnya ke dua file di repo GitHub <span class="mono">tts-godam-upp</span> — <span class="mono">live.json</span> (lagi live atau tidak, tiap ~60 detik) dan <span class="mono">chat.json</span> (50 pesan terakhir, tiap ~10 detik saat live). Widget ini hanya membaca kedua file itu dari <span class="mono">raw.githubusercontent.com</span> — <span class="mono">live.json</span> tiap 30 detik, <span class="mono">chat.json</span> tiap 5 detik saat live. Kalau pengawas mati, baris Pengawas memberi peringatan dan widget menunggu sampai data baru masuk. Cadangan kalau pengawas mati lama: widget v8 (pakai API key + YouTube Data API resmi) masih ada sebagai cadangan.</p>
 
         <h3>B. Langkah tes (wajib urut)</h3>
         <ol>
-          <li><b>Buka widget ini di Chrome dulu</b> (bukan langsung di OBS). Isi API key (tersimpan otomatis saat mengetik). Suara dicoba aktif otomatis oleh sistem.</li>
-          <li>Dengarkan contoh suara Majestic Throne di panel Suara. Tes bacaan chat dilakukan lewat live sungguhan (langkah 3) — panel tes chat sudah dihapus di v7.</li>
-          <li>Saat live beneran: sistem yang nyala otomatis mencari live yang sedang berjalan di @godamupp dan langsung menyambung ke chat-nya tanpa klik apa pun — kalau saat halaman dimuat kamu lagi nggak live, pengawas mengecek ulang tiap 60 detik dan mulai sendiri begitu live muncul. Lalu kirim komen dari HP/akun lain dan dengarkan apakah dibacakan. Satu-satunya tombol yang ada adalah Matikan Sistem — pakai itu kalau mau mematikan seluruh sistem.</li>
-          <li>Kalau di Chrome sudah beres, baru pasang di OBS (langkah C). Di dalam OBS, isi API key sekali lagi lewat klik kanan Browser Source → <b>Interact</b>, karena penyimpanan browser OBS terpisah dari Chrome.</li>
+          <li><b>Buka widget ini di Chrome dulu</b> (bukan langsung di OBS). Tidak ada yang perlu diisi — sistem langsung membaca data pengawas. Suara dicoba aktif otomatis oleh sistem.</li>
+          <li>Dengarkan contoh suara Majestic Throne di panel Suara. Tes bacaan chat dilakukan lewat live sungguhan (langkah 3) — panel tes chat sudah dihapus sejak v7.</li>
+          <li>Saat live beneran: sistem yang nyala otomatis membaca data pengawas dan langsung menyambung ke chat live @godamupp tanpa klik apa pun — kalau saat halaman dimuat kamu lagi nggak live, widget mengecek ulang tiap 30 detik dan mulai sendiri begitu live muncul di data pengawas. Lalu kirim komen dari HP/akun lain dan dengarkan apakah dibacakan (pesan bisa telat ~10–20 detik). Satu-satunya tombol yang ada adalah Matikan Sistem — pakai itu kalau mau mematikan seluruh sistem.</li>
+          <li>Kalau di Chrome sudah beres, baru pasang di OBS (langkah C). Tidak ada key yang perlu diisi di OBS — pengawas yang mengisi datanya.</li>
         </ol>
 
         <h3>C. Pasang di OBS</h3>
@@ -371,8 +344,8 @@
           <li>Di OBS: <b>Sources → + → Browser</b>, tempel URL widget ini dengan tambahan <code>?obs=1</code> di akhir alamatnya untuk tampilan minimal transparan.</li>
           <li>Di properti Browser Source, centang <b>Control audio via OBS</b>.</li>
           <li>Di <b>Advanced Audio Properties</b> (klik kanan sumber audio widget), set ke <b>Monitor and Output</b> — persis seperti Saweria dulu — supaya kamu dengar di headset dan penonton juga dengar.</li>
-          <li>Klik kanan Browser Source → <b>Interact</b> kalau mau mengisi API key dari dalam OBS — tidak ada tombol lain yang perlu diklik; sistem jalan sendiri.</li>
-          <li><b>Kalau paste API key tidak jalan di Interact</b> (kolom password di Mac memang sering menolak Cmd+V): isi key lewat URL saja. Di <b>Properties</b> Browser Source, ubah URL jadi <code>file:///…/tts-godam-upp.html?obs=1&amp;key=KEY_KAMU</code> — tempel key-nya di kolom URL biasa itu, klik OK. Widget membaca parameter <code>?key=…</code>, menyimpannya ke localStorage yang sama, dan langsung memakainya untuk YouTube Data API. Setelah tersimpan, parameter itu boleh tetap dibiarkan di URL.</li>
+          <li>Klik kanan Browser Source → <b>Interact</b> kalau mau melihat status/pengawas dari dalam OBS — tidak ada yang perlu diisi; sistem jalan sendiri.</li>
+          <li><b>URL lama yang masih berisi <code>?obs=1&amp;key=…</code>:</b> parameter <code>key</code>-nya diabaikan di v9 — boleh dibiarkan, boleh dihapus. Widget v9 tidak memakai API key sama sekali.</li>
         </ol>
 
         <h3>D. Catatan suara</h3>
@@ -389,11 +362,18 @@
     (function(){
       "use strict";
       var CHANNEL_ID = "UCS7xX24VmKTa55YcRnvDxEQ";
-      var LS_KEY = "ttsgodam.apikey";
       var LS_SETTINGS = "ttsgodam.settings.v2";
       var MAX_QUEUE = 20;
       var MAX_CHARS = 200;
-      var MIN_POLL_MS = 5000;
+      // v9: NOL kuota — widget TIDAK memanggil YouTube Data API sama sekali.
+      // Data live + chat diisi pengawas Muse ke repo GitHub, widget hanya
+      // membaca dua file JSON di bawah (raw.githubusercontent mengirim
+      // Access-Control-Allow-Origin: *, jadi fetch lintas origin diizinkan).
+      // Query ?t= WAJIB — raw.githubusercontent cache 5 menit tanpa itu.
+      var WATCHER_BASE = "https://raw.githubusercontent.com/uppvision-lgtm/tts-godam-upp/main/";
+      var LIVE_CHECK_MS = 30000;   // baca live.json tiap 30 detik
+      var CHAT_POLL_MS = 5000;     // baca chat.json tiap 5 detik saat live
+      var WATCHER_STALE_MS = 180000; // data pengawas >3 menit = peringatan
 
       var $ = function(id){ return document.getElementById(id); };
       var params = new URLSearchParams(location.search);
@@ -424,24 +404,30 @@
         audioUnlocked: false,
         unlockSource: "",
         videoId: "",
-        liveChatId: "",
         foundVideoId: "",
         foundTitle: "",
-        nextPageToken: "",
-        firstPoll: true,
-        pollTimer: null,
-        pollInterval: 0,
+        liveFetching: false,
+        chatFetching: false,
+        chatTimer: null,
+        chatFailStreak: 0,
         autoWatchTimer: null,
-        connecting: false,
         queue: [],
         readCount: 0,
         inCount: 0,
         skipCount: 0,
-        quota: 0,
         lastMessage: "",
         currentItem: null,
         voices: []
       };
+      // ID pesan yang sudah masuk antrean (per live) — chat.json berisi 50
+      // pesan terakhir, jadi tiap polling harus disaring ke yang BARU saja.
+      var seenIds = {};
+      // Waktu (ms epoch) data pengawas terakhir: dari checkedAt live.json,
+      // dan dari updatedAt chat.json saat live.
+      var lastLiveCheckedAt = 0;
+      var lastChatAt = 0;
+      var lastLiveFetchOkAt = 0;
+      var lastLiveFetchError = "";
 
       var settings = {
         voiceURI: "",
@@ -464,46 +450,6 @@
       function saveSettings(){
         try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch(e){}
       }
-      function getApiKey(){
-        var mainEl = $("apiKey");
-        var obsEl = $("obsApiKey");
-        var typed = mainEl ? mainEl.value.trim() : "";
-        var typedObs = obsEl ? obsEl.value.trim() : "";
-        if (typed) return typed;
-        if (typedObs) return typedObs;
-        try { return localStorage.getItem(LS_KEY) || ""; } catch(e){ return ""; }
-      }
-      function syncKeyInputs(value){
-        if ($("apiKey")) $("apiKey").value = value;
-        if ($("obsApiKey")) $("obsApiKey").value = value;
-      }
-      function setKeyStateBoth(msg){
-        if ($("keyState")) $("keyState").textContent = msg;
-        if ($("obsKeyState")) $("obsKeyState").textContent = msg;
-      }
-      // API key tersimpan OTOMATIS saat mengetik (debounce 500ms) — tanpa
-      // tombol simpan. Kedua kolom (website + OBS) selalu disinkronkan.
-      var keySaveTimer = null;
-      function onKeyInput(sourceId){
-        var src = $(sourceId);
-        var other = $(sourceId === "obsApiKey" ? "apiKey" : "obsApiKey");
-        if (src && other) other.value = src.value;
-        if (keySaveTimer) clearTimeout(keySaveTimer);
-        keySaveTimer = setTimeout(function(){
-          var key = src ? src.value.trim() : "";
-          if (!key) { setKeyStateBoth("Kolom key masih kosong — tempel dulu key-nya."); return; }
-          try {
-            localStorage.setItem(LS_KEY, key);
-            setKeyStateBoth("API key tersimpan otomatis di browser ini (" + timeNow() + "). Hanya dikirim ke googleapis.com.");
-            addLog("info", "INFO", "API key disimpan otomatis ke localStorage browser ini.");
-            renderWatch();
-            if (settings.systemOn && !state.running && !state.connecting) checkLive(true);
-          } catch(e){
-            setKeyStateBoth("Gagal menyimpan key di browser ini: " + e.message);
-          }
-        }, 500);
-      }
-
       /* ---------------- Logging & status UI ---------------- */
       function timeNow(){
         var d = new Date();
@@ -553,13 +499,13 @@
       }
       function renderStats(){
         $("stVideo").textContent = state.videoId || "—";
-        $("stChat").textContent = state.liveChatId || "—";
+        $("stWatch").textContent = lastLiveCheckedAt ? timeOf(lastLiveCheckedAt) : "—";
         $("stRead").textContent = state.readCount;
         $("stQueue").textContent = state.queue.length;
         $("stIn").textContent = state.inCount;
         $("stSkip").textContent = state.skipCount;
-        $("stQuota").textContent = state.quota + " unit";
-        $("stPoll").textContent = state.pollInterval ? (Math.round(state.pollInterval/100)/10) + " detik" : "—";
+        $("stQuota").textContent = "NOL — tanpa kuota";
+        $("stPoll").textContent = state.running ? "5 detik" : "—";
         $("stLast").textContent = state.lastMessage || "—";
       }
       function renderSpeaking(){
@@ -578,30 +524,43 @@
           if ($("obsSpeak")) $("obsSpeak").textContent = "Belum ada pesan yang dibaca.";
         }
       }
-      // Status pengawas yang TERLIHAT (website + OBS): apakah sistem sedang
-      // mengawasi live, kapan terakhir cek, atau kenapa belum bisa mengawasi.
+      // Status pengawas yang TERLIHAT (website + OBS): apakah data pengawas
+      // Muse masih segar, kapan terakhir masuk, atau kenapa belum ada data.
+      // JUJUR: kalau data lebih tua dari 3 menit atau fetch gagal, jangan
+      // pura-pura jalan — tampilkan peringatannya.
       var lastWatchCheck = "";
+      function timeOf(ms){
+        var d = new Date(ms);
+        function p(n){ return (n<10?"0":"")+n; }
+        return p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+      }
       function renderWatch(){
         var msg;
         if (!settings.systemOn) msg = "Pengawas: MATI.";
-        else if (!getApiKey()) msg = "Pengawas: MENUNGGU KEY — sistem nyala tapi belum bisa mantau live.";
-        else msg = "Pengawas: JALAN — cek live terakhir " + (lastWatchCheck || "—") + ", cek berikut ±60 detik";
+        else if (!lastLiveFetchOkAt) msg = "Pengawas: MENUNGGU DATA — belum ada data dari pengawas Muse. Kalau ini terus, pengawas mungkin belum jalan.";
+        else if (lastLiveFetchError) msg = "Pengawas: GAGAL AMBIL DATA — " + lastLiveFetchError + " (data terakhir " + timeOf(lastLiveCheckedAt || lastLiveFetchOkAt) + ").";
+        else if (lastLiveCheckedAt && (Date.now() - lastLiveCheckedAt > WATCHER_STALE_MS)) msg = "Pengawas: BELUM UPDATE >3 MENIT — data terakhir " + timeOf(lastLiveCheckedAt) + ", mungkin pengawas mati.";
+        else msg = "Pengawas: JALAN — data terakhir " + (lastLiveCheckedAt ? timeOf(lastLiveCheckedAt) : (lastWatchCheck || "—")) + ", cek berikut ±30 detik";
         if ($("watchState")) $("watchState").textContent = msg;
         if ($("obsWatchState")) $("obsWatchState").textContent = msg;
       }
       // Status utama yang JUJUR: jangan pernah tampil "siap" padahal sistem
-      // tidak mengawasi (mis. belum ada key).
+      // tidak mengawasi (mis. belum ada data pengawas).
       function renderSystemStatus(){
         if (!settings.systemOn) {
           setStatus("", "Sistem MATI — tidak mengawasi, tidak membaca. Klik Nyalakan Sistem untuk menghidupkan lagi.");
           return;
         }
-        if (!getApiKey()) {
-          setStatus("warn", "Sistem NYALA — tapi belum ada API key di browser ini, jadi belum bisa mantau live. Tempel key di bawah, tersimpan otomatis.");
+        if (state.running) return; // status LIVE diatur beginReading
+        if (!lastLiveFetchOkAt) {
+          setStatus("warn", "Sistem NYALA — menunggu data pertama dari pengawas Muse. Begitu data masuk, sistem langsung mengawasi live @godamupp.");
           return;
         }
-        if (state.running) return; // status LIVE diatur beginPolling
-        setStatus("on", "Sistem NYALA — mengawasi live @godamupp (cek tiap 60 detik). Belum ada live.");
+        if (lastLiveFetchError) {
+          setStatus("warn", "Sistem NYALA — tapi gagal mengambil data pengawas: " + lastLiveFetchError);
+          return;
+        }
+        setStatus("on", "Sistem NYALA — mengawasi live @godamupp lewat data pengawas Muse (cek tiap 30 detik). Belum ada live.");
       }
       function renderControls(){
         var on = !!settings.systemOn;
@@ -760,53 +719,27 @@
         enqueue(item);
       }
 
-      /* ---------------- YouTube API ---------------- */
-      function explainError(status, reason, message){
-        var r = reason || "";
-        if (r === "keyInvalid" || /API key not valid/i.test(message || ""))
-          return "API key tidak valid. Cek lagi key dari Google Cloud Console — pastikan tidak ada spasi dan project-nya sudah mengaktifkan YouTube Data API v3.";
-        if (r === "quotaExceeded" || r === "dailyLimitExceeded")
-          return "Kuota harian YouTube Data API (10.000 unit) sudah habis. Kuota reset tengah malam waktu Pasifik. Matikan sistem dulu dan lanjut besok, atau pakai project Google Cloud lain.";
-        if (r === "liveChatNotFound")
-          return "Live chat tidak ditemukan — live mungkin sudah berakhir atau video ini bukan live.";
-        if (r === "liveChatDisabled")
-          return "Live chat dinonaktifkan di video ini, jadi tidak ada chat yang bisa diambil.";
-        if (r === "liveChatEnded")
-          return "Live chat sudah berakhir — live selesai.";
-        if (r === "videoNotFound" || r === "notFound")
-          return "Video tidak ditemukan. Cek lagi Video ID / URL-nya.";
-        if (status === 403)
-          return "Ditolak YouTube (403 " + r + "). Biasanya kuota habis, API belum diaktifkan, atau key dibatasi untuk API lain. Pesan asli: " + message;
-        if (status === 400)
-          return "Permintaan ditolak YouTube (400 " + r + "). Pesan asli: " + message;
-        if (status === 404)
-          return "Tidak ditemukan (404 " + r + "). Pesan asli: " + message;
-        return "Error " + status + (r ? " (" + r + ")" : "") + ": " + (message || "tidak ada keterangan");
-      }
-      function apiFail(status, data){
-        var e = (data && data.error) || {};
-        var reason = (e.errors && e.errors[0] && e.errors[0].reason) || "";
-        var err = new Error(explainError(status, reason, e.message || ""));
-        err.reason = reason; err.status = status;
-        return err;
-      }
-      function ytFetch(path, quotaCost){
-        var key = getApiKey();
-        if (!key) return Promise.reject(new Error("API key belum diisi. Isi dulu di panel Sambungkan ke Live — key tersimpan otomatis saat mengetik."));
-        var sep = path.indexOf("?") === -1 ? "?" : "&";
-        return fetch("https://www.googleapis.com/youtube/v3/" + path + sep + "key=" + encodeURIComponent(key))
-          .then(function(res){
-            return res.json().then(function(data){
-              if (!res.ok) throw apiFail(res.status, data);
-              state.quota += quotaCost;
-              renderStats();
-              return data;
-            });
-          })
-          .catch(function(err){
-            if (err instanceof TypeError) throw new Error("Gagal terhubung ke googleapis.com — cek koneksi internet MacBook-nya.");
-            throw err;
-          });
+      /* ---------------- Pengawas Muse (v9, tanpa kuota) ----------------
+         Widget TIDAK memanggil YouTube Data API sama sekali. Semua data
+         live + chat dibaca dari dua file JSON yang ditulis pengawas Muse
+         ke repo GitHub tts-godam-upp:
+           live.json: {"live":bool, "videoId":string|null,
+                       "title":string|null, "checkedAt":ISO-8601 UTC,
+                       "source":"youtubei-browse"}  (update tiap ~60 detik)
+           chat.json: {"videoId":string, "updatedAt":ISO-8601 UTC,
+                       "messages":[{"id","author","text","ts"}...]}
+         (maks 50 pesan terakhir, tertua dulu; reset [] kalau videoId berubah)
+         Fetch pakai cache-buster ?t= karena raw.githubusercontent cache
+         5 menit tanpa itu. */
+      function fetchWatcherJSON(file){
+        var url = WATCHER_BASE + file + "?t=" + Date.now();
+        return fetch(url).then(function(res){
+          if (!res.ok) throw new Error("Gagal ambil " + file + " (HTTP " + res.status + ") — cek koneksi internet MacBook-nya.");
+          return res.json();
+        }).catch(function(err){
+          if (err instanceof TypeError) throw new Error("Gagal terhubung ke raw.githubusercontent.com — cek koneksi internet MacBook-nya.");
+          throw err;
+        });
       }
 
       function setLt(mode, status, title, idText){
@@ -821,182 +754,150 @@
         $("ltId").textContent = idText || "";
       }
 
-      // Sasarannya selalu live yang SEDANG berjalan di @godamupp.
-      // Kalau lagi nggak live, hasilnya memang tidak ada — itu ditampilkan apa adanya.
-      function checkLive(autoStart){
-        if (state.running) {
-          addLog("info", "INFO", "Sedang membaca chat live — pengecekan live dilewati.");
-          return Promise.resolve(null);
-        }
+      // Baca live.json: dipanggil tiap 30 detik oleh pengawas (startAutoWatch)
+      // dan sekali saat boot. Kalau live==true dan belum membaca → mulai
+      // baca chat; kalau live==false padahal sedang membaca → berhenti.
+      function checkLiveFromWatcher(){
+        if (!settings.systemOn) return;
+        if (state.liveFetching) return;
+        state.liveFetching = true;
         lastWatchCheck = timeNow();
-        renderWatch();
-        setLt("checking", "Mengecek live…", "Sedang mencari live yang berjalan di @godamupp…", "");
-        setStatus("warn", "Mengecek live…");
-        return ytFetch("search?part=snippet&channelId=" + CHANNEL_ID + "&eventType=live&type=video&maxResults=5", 100)
-          .then(function(data){
-            var items = data.items || [];
-            if (!items.length) {
-              state.foundVideoId = ""; state.foundTitle = "";
-              state.videoId = ""; state.liveChatId = "";
+        fetchWatcherJSON("live.json").then(function(data){
+          state.liveFetching = false;
+          if (!settings.systemOn) return; // sistem dimatikan selagi fetch jalan
+          lastLiveFetchOkAt = Date.now();
+          lastLiveFetchError = "";
+          var checkedAt = Date.parse(data.checkedAt || "") || 0;
+          if (checkedAt) lastLiveCheckedAt = checkedAt;
+          renderWatch(); renderStats(); renderSystemStatus();
+          if (data.live && data.videoId) {
+            var isNewLive = (data.videoId !== state.videoId);
+            if (isNewLive) {
+              // Live baru (atau videoId berubah) — chat.json direset pengawas,
+              // jadi Set id + antrean lama dibersihkan.
+              seenIds = {};
+              if (state.queue.length || state.currentItem) {
+                state.queue = [];
+                if ("speechSynthesis" in window) { try { speechSynthesis.cancel(); } catch(e){} }
+                state.speaking = false; state.currentItem = null;
+                renderQueue(); renderSpeaking();
+              }
+            }
+            state.foundVideoId = data.videoId;
+            state.foundTitle = (data.title || "(tanpa judul)");
+            state.videoId = data.videoId;
+            setLt("live", "Lagi live sekarang", "“" + state.foundTitle + "” — live inilah yang dituju, otomatis.", "Video ID: " + state.videoId);
+            showError("");
+            if (isNewLive) addLog("info", "INFO", "Live terdeteksi dari data pengawas: “" + state.foundTitle + "” (" + state.videoId + ").");
+            if (!state.running) beginReading();
+            renderStats();
+          } else {
+            if (state.running) {
+              stopReading("Live sudah selesai — sistem tetap mengawasi, cek lagi tiap 30 detik");
+            } else {
+              state.foundVideoId = ""; state.foundTitle = ""; state.videoId = "";
               renderStats();
               setLt("off", "Lagi nggak live", "Sekarang belum ada live yang berjalan di @godamupp — jadi belum ada chat yang bisa dibaca. Begitu kamu live, pengawas langsung menyasar live itu sendiri.", "");
               setStatus("", "Lagi nggak live — belum ada live yang berjalan");
-              addLog("info", "INFO", "Pengecekan selesai: channel Godam UPP sedang tidak live saat ini, jadi tidak ada live yang dituju.");
               showError("");
-              return null;
             }
-            var first = items[0];
-            state.foundVideoId = first.id.videoId;
-            state.foundTitle = (first.snippet && first.snippet.title) || "(tanpa judul)";
-            setLt("live", "Lagi live sekarang", "“" + state.foundTitle + "” — live inilah yang dituju, otomatis.", "Video ID: " + state.foundVideoId);
-            setStatus("on", "Live ketemu — siap dibacakan");
-            addLog("info", "INFO", "Live yang sedang berjalan ditemukan: “" + state.foundTitle + "” (" + state.foundVideoId + ")" + (items.length > 1 ? " — ada " + items.length + " live bersamaan, yang dituju yang paling atas." : ""));
-            if (autoStart) {
-              addLog("info", "INFO", "Pengawas: live terdeteksi — sistem langsung mulai mendengarkan.");
-              return connectAndStart();
-            }
-            return state.foundVideoId;
-          })
-          .catch(function(err){
-            setLt("unknown", "Gagal mengecek live", err.message, "");
-            setStatus("warn", "Gagal mengecek live");
-            showError(err.message);
-            addLog("err", "ERROR", err.message);
-            return null;
-          });
+          }
+        }).catch(function(err){
+          state.liveFetching = false;
+          lastLiveFetchError = err.message;
+          renderWatch(); renderSystemStatus();
+          showError(err.message);
+          addLog("err", "ERROR", "Gagal membaca live.json: " + err.message);
+        });
       }
 
-      /* ---------------- Pengawas live (otomatis, selalu jalan saat sistem nyala) ----------------
-         Pengawas mengecek live @godamupp tiap 60 detik. Begitu live ketemu,
-         sistem langsung mulai mendengarkan — tanpa klik apa pun. Kalau live
-         selesai, polling berhenti dan pengawas kembali menunggu live
-         berikutnya sendiri. Tidak ada penahanan/suppression apa pun. */
-      var AUTO_WATCH_MS = 60000;
-      function autoWatchTick(){
-        if (!settings.systemOn) return;
-        if (state.running || state.connecting) return;
-        if (!getApiKey()) { renderWatch(); return; }
-        if (state.foundVideoId) {
-          addLog("info", "INFO", "Pengawas: live sudah terdeteksi — sistem langsung mulai mendengarkan.");
-          connectAndStart();
-          return;
-        }
-        checkLive(true);
+      // Baca chat.json tiap 5 detik saat live. chat.json berisi 50 pesan
+      // terakhir — hanya id yang BELUM pernah dilihat yang diproses.
+      function pollChatFromWatcher(){
+        if (!state.running) return;
+        if (state.chatFetching) return;
+        state.chatFetching = true;
+        fetchWatcherJSON("chat.json").then(function(data){
+          state.chatFetching = false;
+          if (!state.running) return; // live berakhir / sistem mati selagi fetch jalan
+          state.chatFailStreak = 0;
+          var updatedAt = Date.parse(data.updatedAt || "") || 0;
+          if (updatedAt) { lastChatAt = updatedAt; if (updatedAt > lastLiveCheckedAt) lastLiveCheckedAt = updatedAt; }
+          // Kalau videoId di chat.json bukan live yang sedang dibaca, abaikan
+          // (pengawas sedang ganti live — live.json berikutnya yang mengatur).
+          if (data.videoId && data.videoId !== state.videoId) return;
+          var msgs = data.messages || [];
+          var fresh = 0;
+          msgs.forEach(function(m){
+            if (!m || !m.id || seenIds[m.id]) return;
+            seenIds[m.id] = true;
+            fresh++;
+            // chat.json tidak membawa ID channel pengirim, jadi filter
+            // "lewati pesan sendiri" tidak bisa diterapkan di v9.
+            processIncoming(m.author || "Tanpa nama", m.text || "", m.authorChannelId || "");
+          });
+          if (fresh) renderStats();
+        }).catch(function(err){
+          state.chatFetching = false;
+          state.chatFailStreak++;
+          // Jangan spam log tiap 5 detik — catat kegagalan pertama, lalu
+          // tiap ke-12 (sekitar 1 menit) selama masih gagal.
+          if (state.chatFailStreak === 1 || state.chatFailStreak % 12 === 0)
+            addLog("err", "ERROR", "Gagal membaca chat.json (" + state.chatFailStreak + "x): " + err.message);
+        });
       }
+
+      /* ---------------- Pengawas (otomatis, selalu jalan saat sistem nyala) ----------------
+         Pengawas membaca live.json tiap 30 detik. Begitu live muncul di data,
+         sistem langsung mulai membaca chat — tanpa klik apa pun. Kalau live
+         selesai, pembacaan chat berhenti dan pengawas kembali menunggu live
+         berikutnya sendiri. Tidak ada penahanan/suppression apa pun. */
       function startAutoWatch(){
         if (state.autoWatchTimer) return;
-        state.autoWatchTimer = setInterval(autoWatchTick, AUTO_WATCH_MS);
+        state.autoWatchTimer = setInterval(function(){
+          if (settings.systemOn) checkLiveFromWatcher();
+        }, LIVE_CHECK_MS);
       }
       function stopAutoWatch(){
         if (state.autoWatchTimer) { clearInterval(state.autoWatchTimer); state.autoWatchTimer = null; }
       }
 
-      function resolveLiveChat(videoId){
-        return ytFetch("videos?part=liveStreamingDetails,snippet&id=" + encodeURIComponent(videoId), 1)
-          .then(function(data){
-            var items = data.items || [];
-            if (!items.length) throw new Error("Video tidak ditemukan. Cek lagi Video ID / URL-nya.");
-            var details = items[0].liveStreamingDetails;
-            var chatId = details && details.activeLiveChatId;
-            if (!chatId) throw new Error("Video ini tidak punya live chat aktif — kemungkinan bukan live yang sedang berjalan, atau live-nya sudah selesai.");
-            state.videoId = videoId;
-            state.liveChatId = chatId;
-            state.nextPageToken = "";
-            state.firstPoll = true;
-            renderStats();
-            addLog("info", "INFO", "Terhubung ke live chat video " + videoId + ".");
-            return chatId;
-          });
-      }
-
-      function pollOnce(){
-        if (!state.running) return;
-        var path = "liveChat/messages?part=snippet,authorDetails&liveChatId=" + encodeURIComponent(state.liveChatId);
-        if (state.nextPageToken) path += "&pageToken=" + encodeURIComponent(state.nextPageToken);
-        ytFetch(path, 5)
-          .then(function(data){
-            if (!state.running) return;
-            var interval = Math.max(data.pollingIntervalMillis || MIN_POLL_MS, MIN_POLL_MS);
-            state.pollInterval = interval;
-            state.nextPageToken = data.nextPageToken || "";
-            var items = data.items || [];
-            if (state.firstPoll) {
-              state.firstPoll = false;
-              if (items.length) addLog("info", "INFO", "Polling mulai — " + items.length + " pesan lama sebelum widget jalan dilewati, hanya pesan baru yang dibaca.");
-            } else {
-              items.forEach(function(item){
-                var type = item.snippet && item.snippet.type;
-                if (type !== "textMessageEvent" && type !== "superChatEvent") return;
-                var text = item.snippet.displayMessage || "";
-                var name = (item.authorDetails && item.authorDetails.displayName) || "Tanpa nama";
-                var authorId = (item.authorDetails && item.authorDetails.channelId) || "";
-                processIncoming(name, text, authorId);
-              });
-            }
-            renderStats();
-            state.pollTimer = setTimeout(pollOnce, interval);
-          })
-          .catch(function(err){
-            showError(err.message);
-            addLog("err", "ERROR", err.message);
-            if (!state.running) return;
-            if (err.reason === "liveChatEnded" || err.reason === "liveChatNotFound" || err.reason === "quotaExceeded" || err.reason === "keyInvalid") {
-              // Hentikan polling saja — pengawas tetap jalan dan akan
-              // menemukan live berikutnya sendiri. Tidak ada suppression.
-              state.running = false; state.connecting = false;
-              if (state.pollTimer) { clearTimeout(state.pollTimer); state.pollTimer = null; }
-              if ("speechSynthesis" in window) { try { speechSynthesis.cancel(); } catch(e){} }
-              state.speaking = false; state.currentItem = null; state.queue = [];
-              renderQueue(); renderSpeaking(); renderControls();
-              if (err.reason === "liveChatEnded" || err.reason === "liveChatNotFound") {
-                state.foundVideoId = ""; state.foundTitle = ""; state.videoId = ""; state.liveChatId = "";
-                renderStats();
-                setLt("off", "Live sudah selesai", "Live-nya sudah berakhir — sistem tetap mengawasi, cek lagi tiap 60 detik.", "");
-                setStatus("on", "Live sudah selesai — sistem tetap mengawasi, cek lagi tiap 60 detik");
-                addLog("info", "INFO", "Live selesai — polling berhenti, pengawas tetap jalan (cek tiap 60 detik).");
-              } else {
-                setStatus("warn", "Berhenti — " + (err.reason === "quotaExceeded" ? "kuota habis" : "API key tidak valid"));
-                addLog("info", "INFO", "Polling berhenti (" + err.reason + ") — pengawas tetap jalan.");
-              }
-              renderWatch();
-              return;
-            }
-            state.pollTimer = setTimeout(pollOnce, 10000);
-          });
-      }
-
       /* ---------------- Controls ---------------- */
-      function beginPolling(){
+      function beginReading(){
+        if (state.running) return;
         state.running = true;
+        state.chatFailStreak = 0;
         setStatus("live", "LIVE — TTS membaca chat");
         showError("");
-        addLog("info", "INFO", "Polling chat dimulai untuk live “" + (state.foundTitle || state.videoId) + "” (" + state.videoId + ").");
-        renderControls();
-        pollOnce();
+        addLog("info", "INFO", "Membaca chat live “" + (state.foundTitle || state.videoId) + "” (" + state.videoId + ") — data diisi pengawas Muse.");
+        renderControls(); renderStats();
+        pollChatFromWatcher();
+        if (!state.chatTimer) state.chatTimer = setInterval(pollChatFromWatcher, CHAT_POLL_MS);
       }
-      function connectAndStart(){
-        if (state.running || state.connecting) return Promise.resolve(null);
-        state.connecting = true;
-        setStatus("warn", "Menyambung ke chat live…");
-        return resolveLiveChat(state.foundVideoId).then(function(){
-          state.connecting = false;
-          beginPolling();
-        }).catch(function(err){
-          state.connecting = false;
-          setStatus("warn", "Gagal menyambung ke chat live");
-          showError(err.message); addLog("err", "ERROR", err.message);
-        });
+      function stopReading(reason){
+        state.running = false;
+        if (state.chatTimer) { clearInterval(state.chatTimer); state.chatTimer = null; }
+        if ("speechSynthesis" in window) { try { speechSynthesis.cancel(); } catch(e){} }
+        state.speaking = false; state.currentItem = null; state.queue = [];
+        seenIds = {};
+        state.foundVideoId = ""; state.foundTitle = ""; state.videoId = "";
+        renderQueue(); renderSpeaking(); renderStats(); renderControls();
+        setLt("off", "Live sudah selesai", "Live-nya sudah berakhir — sistem tetap mengawasi, cek lagi tiap 30 detik.", "");
+        setStatus("on", reason || "Live sudah selesai — sistem tetap mengawasi, cek lagi tiap 30 detik");
+        addLog("info", "INFO", "Live selesai — pembacaan chat berhenti, pengawas tetap jalan (cek tiap 30 detik).");
+        renderWatch(); renderSystemStatus();
       }
       /* ---------------- Satu-satunya kontrol: Matikan / Nyalakan Sistem ---------------- */
       function stopSystem(){
         settings.systemOn = false; saveSettings();
         stopAutoWatch();
-        if (state.pollTimer) { clearTimeout(state.pollTimer); state.pollTimer = null; }
+        if (state.chatTimer) { clearInterval(state.chatTimer); state.chatTimer = null; }
         if (autoUnlockTimer) { clearInterval(autoUnlockTimer); autoUnlockTimer = null; }
-        state.running = false; state.connecting = false;
+        state.running = false; state.liveFetching = false; state.chatFetching = false;
         if ("speechSynthesis" in window) { try { speechSynthesis.cancel(); } catch(e){} }
         state.speaking = false; state.currentItem = null; state.queue = [];
-        state.videoId = ""; state.liveChatId = ""; state.foundVideoId = ""; state.foundTitle = "";
+        state.videoId = ""; state.foundVideoId = ""; state.foundTitle = "";
+        seenIds = {};
         renderQueue(); renderSpeaking(); renderControls(); renderWatch();
         setLt("off", "Sistem mati", "Sistem dimatikan — tidak mengawasi live dan tidak membaca chat. Nyalakan lagi lewat tombol Nyalakan Sistem.", "");
         setStatus("", "Sistem MATI — tidak mengawasi, tidak membaca. Klik Nyalakan Sistem untuk menghidupkan lagi.");
@@ -1012,9 +913,9 @@
         if (settings.systemOn) stopSystem(); else startSystem();
       }
       // Urutan boot (dipakai saat halaman dimuat dan saat sistem dinyalakan):
-      // (a) mulai loop audio unlock, (b) mulai pengawas 60 detik,
-      // (c) kalau key ada, cek live segera. Kalau sistem mati, fungsi ini
-      // tidak dipanggil — tidak ada timer, cek, atau suara yang jalan.
+      // (a) mulai loop audio unlock, (b) mulai pengawas 30 detik,
+      // (c) baca live.json segera. Kalau sistem mati, fungsi ini
+      // tidak dipanggil — tidak ada timer, fetch, atau suara yang jalan.
       function bootSystem(){
         startAutoUnlock();
         startAutoWatch();
@@ -1029,15 +930,15 @@
             } catch(e){}
           }, 15000);
         }
-        if (getApiKey()) checkLive(true);
-        else renderSystemStatus();
+        checkLiveFromWatcher();
+        renderSystemStatus();
       }
       /* ---------------- Suara otomatis ----------------
          Widget mencoba mengaktifkan suara sendiri begitu sistem nyala, tanpa
          menunggu klik: buat/resume AudioContext + ucapan pemancing senyap
          lewat speechSynthesis, diulang saat voiceschanged, pada interaksi
          pertama, dan berkala sampai berhasil. Tidak ada tombol pengaktif
-         suara lagi di v7 — suara hanya bisa aktif lewat jalur otomatis ini. */
+         suara lagi sejak v7 — suara hanya bisa aktif lewat jalur otomatis ini. */
       var audioCtx = null;
       var autoUnlockTimer = null;
       var primerInFlight = false;
@@ -1110,8 +1011,6 @@
       if ($("btnSystem")) $("btnSystem").addEventListener("click", toggleSystem);
       if ($("btnSystemObs")) $("btnSystemObs").addEventListener("click", toggleSystem);
 
-      if ($("apiKey")) $("apiKey").addEventListener("input", function(){ onKeyInput("apiKey"); });
-      if ($("obsApiKey")) $("obsApiKey").addEventListener("input", function(){ onKeyInput("obsApiKey"); });
       /* voice + sliders */
       $("voiceSelect").addEventListener("change", function(){
         settings.voiceURI = this.value; saveSettings();
@@ -1133,46 +1032,6 @@
 
       /* ---------------- Init ---------------- */
       loadSettings();
-      // Dukungan ?key=... dan #key=... di URL — cara memasukkan key tanpa
-      // paste di kolom password Interact OBS (paste tidak jalan di sana di
-      // Mac). User bisa menempel key di kolom URL Properties Browser Source
-      // OBS, contoh: file:///.../tts-godam-upp.html?obs=1&key=AIza...
-      // Hash adalah cadangan kalau query string tidak diteruskan oleh
-      // halaman pembungkus/share. Key dari URL (query maupun hash) disimpan
-      // ke localStorage yang sama (ttsgodam.apikey) dan dipakai untuk semua
-      // panggilan YouTube Data API.
-      var urlKey = "";
-      var keyFromUrl = false;
-      var keyFromHash = false;
-      try { urlKey = (params.get("key") || "").trim(); } catch(e){}
-      if (!urlKey) {
-        try {
-          var hk = (hashParams.get("key") || "").trim();
-          if (hk) { urlKey = hk; keyFromHash = true; }
-        } catch(e){}
-      }
-      if (urlKey) {
-        keyFromUrl = true;
-        try { localStorage.setItem(LS_KEY, urlKey); } catch(e){}
-        syncKeyInputs(urlKey);
-      }
-      var hasSavedKey = false;
-      try {
-        var savedKey = localStorage.getItem(LS_KEY);
-        if (savedKey) {
-          hasSavedKey = true;
-          syncKeyInputs(savedKey);
-          setKeyStateBoth(keyFromUrl
-            ? "API key dimuat dari parameter URL (" + (keyFromHash ? "#key=…" : "?key=…") + ") dan tersimpan di browser ini. Hanya dikirim ke googleapis.com."
-            : "API key sudah tersimpan di browser ini. Widget langsung mengecek live yang sedang berjalan.");
-        }
-      } catch(e){}
-      if (keyFromUrl && !hasSavedKey) {
-        // localStorage tidak bisa ditulis (mis. diblokir) — key tetap dipakai
-        // dari kolom input yang sudah disinkronkan di atas.
-        hasSavedKey = true;
-        setKeyStateBoth("API key dimuat dari parameter URL (" + (keyFromHash ? "#key=…" : "?key=…") + "). Hanya dikirim ke googleapis.com.");
-      }
       bindSlider("rate", "rateOut", "rate", function(v){ return v.toFixed(2) + "×"; });
       bindSlider("pitch", "pitchOut", "pitch", function(v){ return v.toFixed(2); });
       bindSlider("volume", "volumeOut", "volume", function(v){ return Math.round(v*100) + "%"; });
@@ -1189,9 +1048,8 @@
       renderStats(); renderQueue(); renderControls();
       if (isOBS) setStatus("", obsDetectedAuto && cfgGet("obs") !== "1" ? "Mode OBS (terdeteksi otomatis)" : "Mode OBS");
       addLog("info", "INFO", isOBS
-        ? "Widget v7 dibuka dalam mode OBS" + (obsDetectedAuto && cfgGet("obs") !== "1" ? " — terdeteksi otomatis dari OBS Browser Source, tanpa ?obs=1." : " (?obs=1 / #obs=1).") + " Suara dicoba aktif otomatis; sistem jalan sendiri, tidak ada tombol yang perlu diklik kecuali Matikan Sistem."
-        : "Widget v7 siap. Suara dicoba aktif otomatis; isi API key (tersimpan otomatis) — sistem langsung mengawasi live begitu key ada.");
-      if (keyFromUrl) addLog("info", "INFO", "API key dibaca dari parameter URL (" + (keyFromHash ? "#key=…" : "?key=…") + ") dan disimpan ke localStorage browser ini.");
+        ? "Widget v9 dibuka dalam mode OBS" + (obsDetectedAuto && cfgGet("obs") !== "1" ? " — terdeteksi otomatis dari OBS Browser Source, tanpa ?obs=1." : " (?obs=1 / #obs=1).") + " Suara dicoba aktif otomatis; sistem jalan sendiri, tidak ada tombol yang perlu diklik kecuali Matikan Sistem."
+        : "Widget v9 siap — tanpa API key, data live + chat diisi pengawas Muse. Suara dicoba aktif otomatis; sistem langsung membaca data pengawas.");
       // Deteksi OBS susulan: window.obsstudio kadang baru disuntikkan sesaat
       // setelah halaman dimuat — cek ulang sebentar, perilakunya sama seperti ?obs=1.
       if (!isOBS) {
@@ -1205,7 +1063,7 @@
             isOBS = true; obsDetectedAuto = true;
             document.body.classList.add("obs");
             renderSystemStatus();
-            addLog("info", "INFO", "Mode OBS terdeteksi otomatis dari OBS Browser Source — tampilan ringkas transparan aktif, kolom API Key tersedia (tersimpan otomatis saat mengetik).");
+            addLog("info", "INFO", "Mode OBS terdeteksi otomatis dari OBS Browser Source — tampilan ringkas transparan aktif.");
           } else if (obsRechecks >= 4) clearInterval(obsRecheckTimer);
         }, 500);
       }
@@ -1214,9 +1072,9 @@
       ["pointerdown", "keydown", "touchstart"].forEach(function(evName){
         document.addEventListener(evName, function(){ if (!state.audioUnlocked) tryAutoUnlock(); }, { passive: true });
       });
-      // Boot v7: kalau sistem nyala (bawaan), langsung resume penuh tanpa
-      // klik apa pun — suara dicoba aktif, pengawas mulai, live dicek
-      // segera kalau key ada. Kalau sistem mati, tidak ada yang dimulai.
+      // Boot v9: kalau sistem nyala (bawaan), langsung resume penuh tanpa
+      // klik apa pun — suara dicoba aktif, pengawas mulai, data live dibaca
+      // segera. Kalau sistem mati, tidak ada yang dimulai.
       renderControls();
       renderWatch();
       if (settings.systemOn) bootSystem();
@@ -1225,3 +1083,5 @@
     </script>
   </body>
 </html>
+
+
